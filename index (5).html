@@ -1,0 +1,2701 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eSIM GO — Интернет за границей без роуминга</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --red: #E30611;
+      --red-hover: #C4040E;
+      --red-soft: #FFF1F2;
+      --amber: #FFC107;
+      --amber-soft: #FFFBEB;
+      --green: #22C55E;
+      --green-soft: #DCFCE7;
+      --bg: #F5F5F5;
+      --card: #FFFFFF;
+      --dark: #1A1A1A;
+      --darker: #0D0D0D;
+      --text: #1A1A1A;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+      --radius: 16px;
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.08);
+      --shadow-red: 0 10px 25px rgba(227, 6, 17, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* SVG FLAG STYLING */
+    .flag-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+
+    .flag-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .flag-lg { width: 52px; height: 36px; border-radius: 8px; }
+    .flag-xl { width: 68px; height: 48px; border-radius: 10px; }
+    .flag-md { width: 36px; height: 25px; border-radius: 6px; }
+    .flag-sm { width: 22px; height: 15px; border-radius: 4px; box-shadow: none; }
+
+    /* SCROLL REVEAL ANIMATION */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 1. STICKY HEADER */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 300;
+      background: #FFFFFF;
+      height: 74px;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.06);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      height: 100%;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo span {
+      background: var(--red);
+      color: #FFFFFF;
+      padding: 2px 9px;
+      border-radius: 7px;
+      font-weight: 900;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      height: 100%;
+    }
+
+    .nav-item {
+      position: relative;
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: var(--red);
+    }
+
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--red);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .nav-badge {
+      margin-left: 6px;
+      background: var(--red);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 99px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bell-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #F9FAFB;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      font-size: 17px;
+      transition: all 0.18s ease;
+    }
+
+    .bell-btn:hover {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .bell-dot {
+      position: absolute;
+      top: 9px;
+      right: 10px;
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      border: 2px solid #FFFFFF;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--dark);
+      color: var(--amber);
+      font-size: 13px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid #E5E7EB;
+      transition: border-color 0.18s;
+    }
+
+    .user-avatar:hover {
+      border-color: var(--red);
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-red {
+      background: var(--red);
+      color: #FFFFFF;
+    }
+
+    .btn-red:hover {
+      background: var(--red-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-red);
+    }
+
+    .btn-outline-white {
+      background: transparent;
+      color: #FFFFFF;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+    }
+
+    .btn-outline-white:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .btn-light {
+      background: #FFFFFF;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-light:hover {
+      border-color: var(--red);
+      color: var(--red);
+      transform: translateY(-1px);
+    }
+
+    .btn-dark {
+      background: var(--dark);
+      color: #FFFFFF;
+    }
+
+    .btn-dark:hover {
+      background: #000000;
+      transform: translateY(-1px);
+    }
+
+    /* SPA SECTIONS */
+    .page-section {
+      display: none;
+      flex: 1;
+      animation: fadeSlideUp 0.3s ease forwards;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 24px 72px;
+    }
+
+    .block-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 48px 0;
+    }
+
+    /* 2. HOME PAGE — HERO & STATS */
+    .hero {
+      background: linear-gradient(135deg, #1A1A1A 0%, #0D0D0D 100%);
+      color: #FFFFFF;
+      padding: 64px 24px;
+      border-bottom: 4px solid var(--red);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 193, 7, 0.14);
+      border: 1px solid rgba(255, 193, 7, 0.4);
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 99px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hero h1 {
+      font-size: 50px;
+      font-weight: 900;
+      line-height: 1.06;
+      letter-spacing: -1.5px;
+      margin-bottom: 18px;
+    }
+
+    .hero-sub {
+      font-size: 19px;
+      color: #D1D5DB;
+      margin-bottom: 32px;
+      max-width: 580px;
+      font-weight: 400;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero-btns .btn {
+      padding: 16px 30px;
+      font-size: 16px;
+    }
+
+    /* HERO PHONE ILLUSTRATION */
+    .hero-phone-wrap {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .hero-phone {
+      width: 330px;
+      background: linear-gradient(160deg, #262626 0%, #111111 100%);
+      border: 2px solid #374151;
+      border-radius: 34px;
+      padding: 22px;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.65);
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 72px;
+      height: 7px;
+      background: #374151;
+      border-radius: 99px;
+      margin: 0 auto 20px;
+    }
+
+    .phone-screen-card {
+      background: #1A1A1A;
+      border: 1px solid #333333;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    /* STATS STRIP */
+    .stats-bar {
+      background: #0D0D0D;
+      border-bottom: 1px solid #262626;
+      color: #FFFFFF;
+    }
+
+    .stats-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 26px 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+
+    .stat-item {
+      border-right: 1px solid #262626;
+    }
+
+    .stat-item:last-child {
+      border-right: none;
+    }
+
+    .stat-value {
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .stat-desc {
+      font-size: 13px;
+      color: #9CA3AF;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* SEARCH WITH DROPDOWN */
+    .search-box-wrap {
+      position: relative;
+      margin-bottom: 44px;
+    }
+
+    .search-box-input {
+      width: 100%;
+      padding: 20px 24px 20px 54px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      background: #FFFFFF;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-box-input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(227, 6, 17, 0.1);
+    }
+
+    .search-box-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-md);
+      z-index: 150;
+      display: none;
+      overflow: hidden;
+    }
+
+    .search-dropdown.open {
+      display: block;
+    }
+
+    .search-dd-item {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .search-dd-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-dd-item:hover {
+      background: var(--red-soft);
+    }
+
+    /* SECTION HEADINGS */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      color: var(--text);
+    }
+
+    .section-subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* COUNTRY CARDS GRID (TELECOM STYLE) */
+    .countries-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+    }
+
+    .country-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 4px solid transparent;
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.22s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .country-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--red);
+      border-top-color: var(--red);
+    }
+
+    .cc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .cc-net-badge {
+      background: #F3F4F6;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .cc-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.4px;
+      margin-bottom: 4px;
+    }
+
+    .cc-operator {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 14px;
+    }
+
+    .cc-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .cc-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cc-price-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .cc-price-val {
+      font-size: 21px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: -0.5px;
+    }
+
+    /* HOW IT WORKS (WITH DASHED LINE) */
+    .steps-wrapper {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 24px;
+    }
+
+    .steps-dashed-line {
+      position: absolute;
+      top: 48px;
+      left: 16%;
+      right: 16%;
+      border-top: 3px dashed #D1D5DB;
+      z-index: 1;
+    }
+
+    .step-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease;
+    }
+
+    .step-box:hover {
+      transform: translateY(-3px);
+      border-color: var(--red);
+    }
+
+    .step-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #FFFFFF;
+      font-size: 22px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 16px rgba(227, 6, 17, 0.3);
+    }
+
+    .step-box h3 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .step-box p {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* WHY eSIM GO (CIRCLE ICONS) */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .why-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .why-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--red);
+    }
+
+    .why-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--red-soft);
+      color: var(--red);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+
+    .why-card h4 {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .why-card p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* PROMO BANNER TRAVEL10 */
+    .promo-banner {
+      background: linear-gradient(120deg, var(--red) 0%, #B8040C 100%);
+      color: #FFFFFF;
+      border-radius: 20px;
+      padding: 34px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-red);
+    }
+
+    .promo-code-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 8px 8px 8px 20px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.5);
+    }
+
+    .promo-code-text {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: var(--amber);
+    }
+
+    /* TABS / PILLS */
+    .tabs-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab-pill {
+      padding: 10px 20px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .tab-pill:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .tab-pill.active {
+      background: var(--red);
+      color: #FFFFFF;
+      border-color: var(--red);
+    }
+
+    /* 4. COUNTRY PAGE & MTS TARIFF CARDS */
+    .breadcrumbs {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .breadcrumbs span {
+      cursor: pointer;
+    }
+
+    .breadcrumbs span:hover {
+      color: var(--red);
+    }
+
+    .country-top-banner {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 30px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .two-col-layout {
+      display: grid;
+      grid-template-columns: 1.6fr 0.85fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    /* BASE ESIM 150 RUB STEP CARD */
+    .esim-base-card {
+      background: #FFFFFF;
+      border: 2px solid var(--red);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* TARIFF CARDS GRID (MTS LARGE NUMBERS + RADIO BUTTON) */
+    .tariffs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .tariff-card {
+      background: #FFFFFF;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .tariff-card:hover {
+      border-color: var(--red);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tariff-card.selected {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .tariff-radio {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #9CA3AF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tariff-card.selected .tariff-radio {
+      border-color: var(--red);
+      background: var(--red);
+    }
+
+    .tariff-card.selected .tariff-radio::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #FFFFFF;
+    }
+
+    .tariff-volume {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -1.2px;
+      color: var(--text);
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+
+    .tariff-days {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .tariff-price {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: -0.6px;
+    }
+
+    .sticky-order-card {
+      position: sticky;
+      top: 96px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--red);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* 5. CHECKOUT & 3D BANK CARD */
+    .bank-card-scene {
+      width: 100%;
+      max-width: 400px;
+      height: 220px;
+      perspective: 1100px;
+      margin: 0 auto 28px;
+    }
+
+    .bank-card-3d {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+    }
+
+    .bank-card-3d.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .bank-card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 26px;
+      background: linear-gradient(135deg, #1A1A1A 0%, #0D0D0D 65%, #2B090B 100%);
+      color: #FFFFFF;
+      border: 1px solid #374151;
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .bank-card-back {
+      transform: rotateY(180deg);
+    }
+
+    .card-chip {
+      width: 48px;
+      height: 36px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #FDE047 0%, #CA8A04 100%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .form-field {
+      margin-bottom: 18px;
+    }
+
+    .form-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .input-control {
+      width: 100%;
+      padding: 13px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #FFFFFF;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+
+    .input-control:focus {
+      border-color: var(--red);
+    }
+
+    /* 7. MY eSIM CARDS */
+    .esim-item-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      grid-template-columns: 1.4fr 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status-pill.active {
+      background: var(--green-soft);
+      color: #15803D;
+    }
+
+    .status-pill.pending {
+      background: var(--amber-soft);
+      color: #B45309;
+    }
+
+    /* 9. CHAT SUPPORT & PULSING DOTS */
+    .chat-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .chat-header {
+      background: var(--dark);
+      color: #FFFFFF;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-messages {
+      height: 370px;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #F9FAFB;
+    }
+
+    .msg-bubble {
+      max-width: 78%;
+      padding: 13px 18px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .msg-bot {
+      align-self: flex-start;
+      background: #E5E7EB;
+      color: var(--text);
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .msg-user {
+      align-self: flex-end;
+      background: var(--red);
+      color: #FFFFFF;
+      font-weight: 600;
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .typing-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 2px;
+    }
+
+    .typing-dots span {
+      width: 7px;
+      height: 7px;
+      background: #6B7280;
+      border-radius: 50%;
+      animation: dotPulse 1.3s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotPulse {
+      0%, 80%, 100% { transform: scale(0.65); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* MODAL (BACKDROP BLUR + SCALE) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      z-index: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-window {
+      background: #FFFFFF;
+      border-radius: 20px;
+      max-width: 500px;
+      width: 100%;
+      padding: 30px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+      animation: modalScale 0.22s ease forwards;
+    }
+
+    @keyframes modalScale {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* TOAST (SLIDE IN RIGHT) */
+    .toast-container {
+      position: fixed;
+      top: 90px;
+      right: 24px;
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast-item {
+      background: var(--dark);
+      color: #FFFFFF;
+      padding: 14px 20px;
+      border-left: 4px solid var(--red);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: var(--shadow-md);
+      animation: slideInRight 0.28s ease forwards;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* FOOTER (MTS / TELE2 MINIMALIST STRUCTURED STYLE + PLAT) */
+    .footer {
+      background: #1A1A1A;
+      color: #9CA3AF;
+      border-top: 4px solid var(--red);
+      margin-top: auto;
+      padding: 40px 24px 32px;
+    }
+
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #2D2D2D;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .footer-links a {
+      color: #D1D5DB;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .footer-links a:hover {
+      color: var(--red);
+    }
+
+    .footer-bottom {
+      padding-top: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+    }
+
+    .plat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #0D0D0D;
+      border: 1px solid #374151;
+      padding: 8px 16px;
+      border-radius: 10px;
+    }
+
+    .plat-logo-word {
+      background: var(--red);
+      color: #FFFFFF;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      letter-spacing: 1.5px;
+    }
+
+    @media (max-width: 1120px) {
+      .countries-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 960px) {
+      .countries-grid { grid-template-columns: repeat(2, 1fr); }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+      .tariffs-grid { grid-template-columns: repeat(2, 1fr); }
+      .two-col-layout, .hero-inner, .esim-item-card { grid-template-columns: 1fr; }
+      .hero-phone-wrap { justify-content: flex-start; }
+      .steps-dashed-line { display: none; }
+      .steps-wrapper { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .nav { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .countries-grid, .tariffs-grid, .why-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- КОНТЕЙНЕР TOAST-УВЕДОМЛЕНИЙ -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- МОДАЛЬНОЕ ОКНО (QR-КОД И ДОКУПКА ТРАФИКА) -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal-window" id="modalContent"></div>
+  </div>
+
+  <!-- 1. HEADER (STICKY, БЕЛЫЙ, С НИЖНЕЙ ТЕНЬЮ) -->
+  <header class="header">
+    <div class="header-container">
+      <a class="logo" onclick="navigate('home')">eSIM<span>GO</span></a>
+
+      <nav class="nav">
+        <a class="nav-item active" data-target="home" onclick="navigate('home')">Главная</a>
+        <a class="nav-item" data-target="catalog" onclick="navigate('catalog')">Каталог</a>
+        <a class="nav-item" data-target="myesim" onclick="navigate('myesim')">
+          Мои eSIM <span class="nav-badge" id="headerEsimCount">0</span>
+        </a>
+        <a class="nav-item" data-target="guides" onclick="navigate('guides')">Гайды</a>
+        <a class="nav-item" data-target="support" onclick="navigate('support')">Поддержка</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="bell-btn" title="Уведомления" onclick="showToast('Тарифы активны: eSIM за 150 ₽ + трафик 15–20 ₽/ГБ')">
+          🔔<span class="bell-dot"></span>
+        </button>
+        <div class="user-avatar" title="Личный кабинет" onclick="navigate('myesim')">АБ</div>
+        <button class="btn btn-red" onclick="navigate('myesim')">Личный кабинет</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. ГЛАВНАЯ СТРАНИЦА -->
+  <main class="page-section active" id="sec-home">
+    <div class="hero">
+      <div class="hero-inner">
+        <div>
+          <div class="hero-badge">⚡ Телеком-тариф: выпуск eSIM 150 ₽ + трафик 15–20 ₽/ГБ</div>
+          <h1>Интернет за границей без роуминга</h1>
+          <p class="hero-sub">eSIM для 5 популярных стран (Турция, Грузия, Беларусь, Таиланд, ОАЭ). Сначала вы оформляете eSIM за <b>150 ₽</b>, а затем подключаете трафик по <b>15–20 ₽ за 1 ГБ</b>.</p>
+          <div class="hero-btns">
+            <button class="btn btn-red" onclick="navigate('catalog')">Подобрать тариф</button>
+            <button class="btn btn-outline-white" onclick="document.getElementById('howItWorksSection').scrollIntoView({behavior:'smooth'})">Как это работает</button>
+          </div>
+        </div>
+
+        <div class="hero-phone-wrap">
+          <div class="hero-phone">
+            <div class="phone-notch"></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#9CA3AF;margin-bottom:14px;font-weight:700;">
+              <span>eSIM GO LTE/5G</span>
+              <span style="color:var(--green);">● Активна</span>
+            </div>
+            <div class="phone-screen-card">
+              <div style="font-size:12px;color:#9CA3AF;margin-bottom:4px;">Шаг 1. Выпуск профиля eSIM</div>
+              <div style="font-size:26px;font-weight:900;color:#FFFFFF;">150 ₽ <span style="font-size:13px;color:var(--amber);font-weight:700;">разово</span></div>
+            </div>
+            <div class="phone-screen-card" style="border-color:var(--red);">
+              <div style="font-size:12px;color:#9CA3AF;margin-bottom:4px;">Шаг 2. Пакет интернета</div>
+              <div style="font-size:28px;font-weight:900;color:var(--red);">15–20 ₽ <span style="font-size:14px;color:#FFFFFF;">/ 1 ГБ</span></div>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:10px;" id="heroMiniFlags"></div>
+            </div>
+            <div style="text-align:center;font-size:12px;color:#9CA3AF;font-weight:600;">
+              Мгновенная выдача QR-кода • PLAT
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ПОЛОСА СТАТИСТИКИ С АНИМАЦИЕЙ СЧЁТЧИКОВ -->
+    <div class="stats-bar">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value"><span class="counter" data-target="5">5</span> стран</div>
+          <div class="stat-desc">Топ направлений без роуминга</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value"><span class="counter" data-target="50000">50 000</span>+</div>
+          <div class="stat-desc">Подключённых путешественников</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">150 ₽</div>
+          <div class="stat-desc">Выпуск цифровой eSIM</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">от 15 ₽</div>
+          <div class="stat-desc">Стоимость 1 ГБ трафика</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- ПОИСК ПО СТРАНАМ С ВЫПАДАЮЩИМ СПИСКОМ -->
+      <div class="search-box-wrap reveal">
+        <span class="search-box-icon">🔍</span>
+        <input
+          type="text"
+          class="search-box-input"
+          id="homeSearchInput"
+          placeholder="Куда вы летите? Введите страну (Турция, Грузия, Беларусь, Таиланд, ОАЭ)..."
+          autocomplete="off"
+          onfocus="renderSearchDropdown(this.value)"
+          oninput="renderSearchDropdown(this.value)"
+        />
+        <div class="search-dropdown" id="homeSearchDropdown"></div>
+      </div>
+
+      <!-- ПОПУЛЯРНЫЕ НАПРАВЛЕНИЯ -->
+      <div class="reveal">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Популярные направления</h2>
+            <p class="section-subtitle">Сначала оформляется eSIM за 150 ₽, затем подключается трафик по 15–20 ₽ за гигабайт</p>
+          </div>
+          <button class="btn btn-light" onclick="navigate('catalog')">Смотреть каталог →</button>
+        </div>
+        <div class="countries-grid" id="homePopularGrid"></div>
+      </div>
+
+      <div class="block-divider"></div>
+
+      <!-- КАК ЭТО РАБОТАЕТ (3 ШАГА С ПУНКТИРНОЙ ЛИНИЕЙ) -->
+      <div class="reveal" id="howItWorksSection">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Как это работает</h2>
+            <p class="section-subtitle">Подключение интернета за границей за 3 простых шага</p>
+          </div>
+        </div>
+
+        <div class="steps-wrapper">
+          <div class="steps-dashed-line"></div>
+          <div class="step-box">
+            <div class="step-circle">1</div>
+            <h3>Купите eSIM за 150 ₽</h3>
+            <p>Выберите страну поездки (Турция, Грузия, Беларусь, Таиланд или ОАЭ) и оформите выпуск цифровой eSIM за 150 ₽.</p>
+          </div>
+          <div class="step-box">
+            <div class="step-circle">2</div>
+            <h3>Добавьте ГБ по 15–20 ₽</h3>
+            <p>Выберите нужный пакет гигабайт сразу или докупайте трафик позже в личном кабинете по цене 15–20 ₽ за 1 ГБ.</p>
+          </div>
+          <div class="step-box">
+            <div class="step-circle">3</div>
+            <h3>Отсканируйте QR-код</h3>
+            <p>Наведите камеру смартфона на полученный QR-код — профиль установится за 1 минуту, и интернет сразу заработает.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="block-divider"></div>
+
+      <!-- ПОЧЕМУ eSIM GO -->
+      <div class="reveal">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Почему eSIM GO</h2>
+            <p class="section-subtitle">Надёжность федерального телеком-оператора в каждой поездке</p>
+          </div>
+        </div>
+
+        <div class="why-grid">
+          <div class="why-card">
+            <div class="why-circle">⚡</div>
+            <h4>Мгновенная доставка</h4>
+            <p>QR-код и ключ активации LPA доступны на экране в ту же секунду после оплаты заказа.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-circle">🪪</div>
+            <h4>Без паспорта и очередей</h4>
+            <p>Оформление полностью онлайн за 2 минуты без походов в салоны связи в аэропорту.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-circle">🛡️</div>
+            <h4>Возврат денег</h4>
+            <p>100% гарантия возврата средств через шлюз PLAT, если eSIM не была активирована.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-circle">🎧</div>
+            <h4>Поддержка 24/7</h4>
+            <p>Оперативный онлайн-чат и выделенная линия поддержки по почте <b>whysim@mail.ru</b>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="block-divider"></div>
+
+      <!-- БАННЕР С ПРОМОКОДОМ TRAVEL10 -->
+      <div class="promo-banner reveal">
+        <div>
+          <div style="display:inline-block;background:var(--amber);color:var(--dark);font-weight:900;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:8px;text-transform:uppercase;">Акция для путешественников</div>
+          <h3 style="font-size:28px;font-weight:900;letter-spacing:-0.6px;">Скидка 10% на первый заказ</h3>
+          <p style="opacity:0.9;font-size:15px;margin-top:4px;">Используйте промокод при покупке eSIM и пакета гигабайт в любой стране</p>
+        </div>
+        <div class="promo-code-box">
+          <span class="promo-code-text">TRAVEL10</span>
+          <button class="btn btn-dark" onclick="copyToClipboard('TRAVEL10', 'Промокод TRAVEL10 скопирован!')">Скопировать</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 3. КАТАЛОГ СТРАН -->
+  <section class="page-section" id="sec-catalog">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Каталог eSIM</h1>
+          <p class="section-subtitle">В каждой стране выпуск eSIM стоит 150 ₽, далее трафик подключается по 15–20 ₽ за 1 ГБ</p>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;">
+        <div class="tabs-row" id="catalogTabs"></div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <input type="text" class="input-control" style="width:250px;" id="catalogSearchInput" placeholder="🔍 Поиск по названию..." oninput="renderCatalogGrid()" />
+          <select class="input-control" style="width:210px;font-weight:600;" id="catalogSortSelect" onchange="renderCatalogGrid()">
+            <option value="pop">По популярности</option>
+            <option value="price">По цене 1 ГБ</option>
+            <option value="alpha">По алфавиту</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="countries-grid" id="catalogCountriesGrid"></div>
+    </div>
+  </section>
+
+  <!-- 4. СТРАНИЦА СТРАНЫ (ВЫПУСК eSIM 150 ₽ + ТАРИФЫ ГИГАБАЙТ 15–20 ₽/ГБ) -->
+  <section class="page-section" id="sec-country">
+    <div class="container">
+      <div class="breadcrumbs">
+        <span onclick="navigate('home')">Главная</span> ›
+        <span onclick="navigate('catalog')">Каталог</span> ›
+        <b style="color:var(--text);" id="crumbCountryName">Турция</b>
+      </div>
+
+      <button class="btn btn-light" style="margin-bottom:20px;" onclick="navigate('catalog')">← Назад</button>
+
+      <div class="country-top-banner" id="countryHeaderBanner"></div>
+
+      <div class="two-col-layout">
+        <div>
+          <!-- ШАГ 1: ПОКУПКА САМОЙ eSIM ЗА 150 РУБ -->
+          <div class="esim-base-card" id="step1EsimCard"></div>
+
+          <!-- ШАГ 2: КАРТОЧКИ ПАКЕТОВ ТРАФИКА (В СТИЛЕ МТС С КРУПНЫМИ ЦИФРАМИ И РАДИОКНОПКАМИ) -->
+          <div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;">
+            <div>
+              <h2 style="font-size:22px;font-weight:900;letter-spacing:-0.5px;">Шаг 2. Выберите пакет интернет-трафика</h2>
+              <p style="font-size:14px;color:var(--muted);">Тариф в этой стране: <b style="color:var(--red);" id="countryRateText">15 ₽ за 1 ГБ</b>. Можно взять 0 ГБ (только eSIM за 150 ₽) и докупить трафик позже.</p>
+            </div>
+          </div>
+
+          <div class="tariffs-grid" id="countryTariffCards"></div>
+
+          <!-- ПОЛЗУНОК ПРОИЗВОЛЬНОГО ВЫБОРА ГИГАБАЙТ -->
+          <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-top:18px;box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="font-weight:800;font-size:15px;">Или укажите точное число гигабайт (от 0 до 100 ГБ):</span>
+              <span style="font-size:22px;font-weight:900;color:var(--red);" id="customSliderLabel">10 ГБ = 150 ₽</span>
+            </div>
+            <input type="range" min="0" max="100" step="1" value="10" style="width:100%;accent-color:var(--red);height:8px;cursor:pointer;" id="customGbSlider" oninput="selectCustomGb(this.value)" />
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600;margin-top:6px;">
+              <span>0 ГБ (только eSIM 150 ₽)</span>
+              <span>25 ГБ</span>
+              <span>50 ГБ</span>
+              <span>100 ГБ</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STICKY БЛОК «ВАШ ЗАКАЗ» СПРАВА -->
+        <div class="sticky-order-card">
+          <div style="font-size:20px;font-weight:900;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:16px;">Ваш заказ</div>
+          <div id="stickyOrderRows" style="display:flex;flex-direction:column;gap:12px;font-size:14px;margin-bottom:20px;"></div>
+          <div style="padding-top:16px;border-top:2px dashed var(--border);margin-bottom:20px;">
+            <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;">Итоговая стоимость</div>
+            <div style="font-size:40px;font-weight:900;color:var(--red);letter-spacing:-1.2px;" id="stickyTotalAmount">300 ₽</div>
+          </div>
+          <button class="btn btn-red" style="width:100%;font-size:16px;padding:16px;" onclick="openCheckoutFromCountry()">Купить eSIM</button>
+          <div style="margin-top:18px;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px;">
+            <div>✓ QR-код мгновенно после оплаты</div>
+            <div>✓ Пополнение трафика по 15–20 ₽/ГБ в ЛК</div>
+            <div>✓ Гарантия возврата денег (PLAT)</div>
+            <div>✓ Поддержка 24/7: <b>whysim@mail.ru</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ОФОРМЛЕНИЕ ЗАКАЗА (3D-КАРТА + ПРОМОКОД) -->
+  <section class="page-section" id="sec-checkout">
+    <div class="container">
+      <button class="btn btn-light" style="margin-bottom:20px;" onclick="navigate(checkoutState.isTopup ? 'myesim' : 'country')">← Назад</button>
+
+      <div class="two-col-layout">
+        <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow-sm);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px;">
+            <h2 style="font-size:24px;font-weight:900;">Оформление и оплата заказа</h2>
+            <span style="background:#F3F4F6;font-size:12px;font-weight:900;padding:6px 12px;border-radius:8px;">ПЛАТЁЖНЫЙ ШЛЮЗ: PLAT</span>
+          </div>
+
+          <!-- 3D АНИМАЦИЯ БАНКОВСКОЙ КАРТЫ -->
+          <div class="bank-card-scene">
+            <div class="bank-card-3d" id="bankCard3d">
+              <div class="bank-card-face">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div class="card-chip"></div>
+                  <div style="font-weight:900;font-size:15px;letter-spacing:1px;color:var(--amber);">eSIM GO • PLAT</div>
+                </div>
+                <div style="font-size:22px;font-weight:800;letter-spacing:2.5px;font-family:monospace;" id="cardVisualNum">•••• •••• •••• ••••</div>
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;color:#D1D5DB;">
+                  <div>
+                    <div style="font-size:10px;color:#9CA3AF;">EMAIL ПОЛУЧАТЕЛЯ</div>
+                    <div style="font-weight:700;" id="cardVisualEmail">TRAVELER@MAIL.RU</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:10px;color:#9CA3AF;">СРОК</div>
+                    <div style="font-weight:700;" id="cardVisualExp">MM/YY</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bank-card-face bank-card-back">
+                <div style="background:#000000;height:44px;margin:-26px -26px 14px;"></div>
+                <div style="text-align:right;">
+                  <div style="font-size:11px;color:#9CA3AF;margin-bottom:4px;">CVV / CVC</div>
+                  <div style="background:#FFFFFF;color:#000000;font-weight:900;padding:8px 16px;border-radius:6px;display:inline-block;letter-spacing:2px;" id="cardVisualCvv">•••</div>
+                </div>
+                <div style="font-size:11px;color:#9CA3AF;">Защищено по стандарту PCI DSS • Система PLAT</div>
+              </div>
+            </div>
+          </div>
+
+          <form onsubmit="processPayment(event)">
+            <div class="form-field">
+              <label>Email для доставки QR-кода и чека</label>
+              <input type="email" required class="input-control" id="checkoutEmail" placeholder="name@mail.ru"
+                oninput="document.getElementById('cardVisualEmail').textContent = (this.value || 'TRAVELER@MAIL.RU').toUpperCase()" />
+            </div>
+
+            <div class="form-field">
+              <label>Номер банковской карты</label>
+              <input type="text" required maxlength="19" class="input-control" id="checkoutCardNum" placeholder="2200 7004 1234 5678"
+                oninput="handleCardNumInput(this)" />
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-field">
+                <label>Срок действия</label>
+                <input type="text" required maxlength="5" class="input-control" id="checkoutCardExp" placeholder="08/28"
+                  oninput="handleCardExpInput(this)" />
+              </div>
+              <div class="form-field">
+                <label>CVV-код</label>
+                <input type="password" required maxlength="3" class="input-control" id="checkoutCardCvv" placeholder="123"
+                  onfocus="document.getElementById('bankCard3d').classList.add('flipped')"
+                  onblur="document.getElementById('bankCard3d').classList.remove('flipped')"
+                  oninput="document.getElementById('cardVisualCvv').textContent = this.value || '•••'" />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label>Промокод (введите TRAVEL10 для скидки 10%)</label>
+              <div style="display:flex;gap:10px;">
+                <input type="text" class="input-control" id="checkoutPromoInput" placeholder="TRAVEL10" />
+                <button type="button" class="btn btn-light" onclick="applyPromo()">Применить</button>
+              </div>
+            </div>
+
+            <div style="font-size:13px;color:var(--muted);margin-bottom:18px;display:flex;gap:10px;align-items:flex-start;">
+              <input type="checkbox" required checked style="margin-top:3px;accent-color:var(--red);" />
+              <span>Оплачивая заказ, я соглашаюсь с <a onclick="navigate('terms')" style="color:var(--red);font-weight:700;cursor:pointer;text-decoration:underline;">Пользовательским соглашением</a> и <a onclick="navigate('privacy')" style="color:var(--red);font-weight:700;cursor:pointer;text-decoration:underline;">Политикой конфиденциальности</a>.</span>
+            </div>
+
+            <button type="submit" class="btn btn-red" style="width:100%;font-size:16px;padding:16px;" id="checkoutPayBtn">Оплатить</button>
+            <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px;">🔒 Платёж защищён. Шлюз PLAT • Демо-режим.</div>
+          </form>
+        </div>
+
+        <div class="sticky-order-card" id="checkoutOrderSummary"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. ЭКРАН УСПЕХА -->
+  <section class="page-section" id="sec-success">
+    <div class="container" style="max-width:680px;text-align:center;">
+      <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--shadow-md);">
+        <div style="width:76px;height:76px;border-radius:50%;background:var(--green-soft);color:#15803D;font-size:38px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;animation:modalScale 0.35s ease;">✓</div>
+        <h1 style="font-size:32px;font-weight:900;margin-bottom:6px;">Оплата прошла!</h1>
+        <p style="font-size:16px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;" id="successSubtitle">eSIM готова к использованию</p>
+        <div style="display:inline-block;background:#F3F4F6;padding:6px 14px;border-radius:99px;font-size:13px;font-weight:800;margin-bottom:22px;" id="successOrderBadge">Заказ #ORD-0000</div>
+
+        <div style="background:#FFFFFF;border:2px dashed var(--border);border-radius:16px;padding:24px;margin-bottom:22px;">
+          <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:12px;">Ваш QR-код активации eSIM</div>
+          <div id="successQrBox" style="display:flex;justify-content:center;margin:10px 0 16px;"></div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Activation Code (LPA):</div>
+          <div style="display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap;">
+            <code style="background:#F3F4F6;padding:10px 14px;border-radius:8px;font-weight:800;font-size:13px;" id="successActivationCode">LPA:1$rsp.esimgo.ru$TR-0000</code>
+            <button class="btn btn-light" style="padding:9px 14px;" onclick="copyToClipboard(document.getElementById('successActivationCode').textContent, 'Код активации скопирован!')">Копировать</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-light" onclick="navigate('guides')">Как установить</button>
+          <button class="btn btn-red" onclick="navigate('myesim')">Мои eSIM</button>
+          <button class="btn btn-light" onclick="navigate('home')">На главную</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. МОИ eSIM -->
+  <section class="page-section" id="sec-myesim">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Мои eSIM</h1>
+          <p class="section-subtitle">Ваши выпущенные профили eSIM (150 ₽) и управление балансом гигабайт (докупка по 15–20 ₽/ГБ)</p>
+        </div>
+        <button class="btn btn-red" onclick="navigate('catalog')">+ Купить eSIM (150 ₽)</button>
+      </div>
+
+      <div id="myEsimListContainer"></div>
+    </div>
+  </section>
+
+  <!-- 8. ГАЙДЫ -->
+  <section class="page-section" id="sec-guides">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Гайды по установке eSIM</h1>
+          <p class="section-subtitle">Пошаговая инструкция и проверка совместимости вашего смартфона</p>
+        </div>
+      </div>
+
+      <div class="tabs-row" style="margin-bottom:24px;">
+        <button class="tab-pill active" id="gTab-iphone" onclick="switchGuide('iphone')">iPhone</button>
+        <button class="tab-pill" id="gTab-android" onclick="switchGuide('android')">Android</button>
+        <button class="tab-pill" id="gTab-device" onclick="switchGuide('device')">Мой телефон</button>
+      </div>
+
+      <div id="gPanel-iphone" style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:20px;font-weight:900;margin-bottom:20px;">Установка eSIM на iPhone</h3>
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px;">
+          <div class="step-circle" style="width:40px;height:40px;font-size:16px;margin:0;flex-shrink:0;">1</div>
+          <div>Откройте <b>Настройки → Сотовая связь → Добавить eSIM</b>.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px;">
+          <div class="step-circle" style="width:40px;height:40px;font-size:16px;margin:0;flex-shrink:0;">2</div>
+          <div>Выберите <b>«Использовать QR-код»</b> и отсканируйте QR-код из раздела «Мои eSIM» или введите код активации LPA вручную.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div class="step-circle" style="width:40px;height:40px;font-size:16px;margin:0;flex-shrink:0;">3</div>
+          <div>По прилёте в страну назначения выберите профиль eSIM GO для сотовых данных и включите <b>«Роуминг данных»</b>.</div>
+        </div>
+      </div>
+
+      <div id="gPanel-android" style="display:none;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:20px;font-weight:900;margin-bottom:20px;">Установка eSIM на Android</h3>
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px;">
+          <div class="step-circle" style="width:40px;height:40px;font-size:16px;margin:0;flex-shrink:0;">1</div>
+          <div>Откройте <b>Настройки → Подключения → Диспетчер SIM-карт</b> (или «Сеть и Интернет»).</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px;">
+          <div class="step-circle" style="width:40px;height:40px;font-size:16px;margin:0;flex-shrink:0;">2</div>
+          <div>Нажмите <b>«Добавить eSIM»</b> и отсканируйте QR-код вашего тарифа.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div class="step-circle" style="width:40px;height:40px;font-size:16px;margin:0;flex-shrink:0;">3</div>
+          <div>Включите профиль и активируйте переключатель <b>«Роуминг данных»</b>.</div>
+        </div>
+      </div>
+
+      <div id="gPanel-device" style="display:none;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:20px;font-weight:900;margin-bottom:14px;">Проверка поддержки eSIM по модели телефона</h3>
+        <input type="text" class="input-control" placeholder="🔍 Введите модель (например, iPhone 15, Samsung S24, Xiaomi)..." oninput="renderDeviceList(this.value)" style="margin-bottom:18px;" />
+        <div id="deviceCompatibilityGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+      </div>
+
+      <!-- ПРЕДУПРЕЖДЕНИЕ ПРО КИТАЙСКИЕ МОДЕЛИ CN -->
+      <div style="background:var(--amber-soft);border:1px solid var(--amber);border-left:5px solid var(--amber);border-radius:12px;padding:18px 22px;margin-top:24px;font-size:14px;">
+        ⚠️ <b>Внимание владельцам смартфонов для рынка Китая (CN):</b> Устройства iPhone и Android, произведённые для континентального Китая (версии с двумя физическими SIM-картами без модуля eSIM), аппаратно не поддерживают установку eSIM. Наберите <b>*#06#</b> — наличие строки <b>EID</b> подтверждает поддержку eSIM.
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. ПОДДЕРЖКА / ОНЛАЙН-ЧАТ -->
+  <section class="page-section" id="sec-support">
+    <div class="container">
+      <div style="max-width:800px;margin:0 auto 20px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 class="section-title">Поддержка абонентов 24/7</h1>
+          <p class="section-subtitle">Официальная почта службы поддержки: <a href="mailto:whysim@mail.ru" style="color:var(--red);font-weight:800;">whysim@mail.ru</a></p>
+        </div>
+        <a href="mailto:whysim@mail.ru" class="btn btn-light">✉️ Написать на whysim@mail.ru</a>
+      </div>
+
+      <div class="chat-card">
+        <div class="chat-header">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:900;">GO</div>
+            <div>
+              <div style="font-weight:800;font-size:15px;">Поддержка eSIM GO</div>
+              <div style="font-size:12px;color:var(--green);">● онлайн • whysim@mail.ru</div>
+            </div>
+          </div>
+          <span style="font-size:12px;color:#9CA3AF;">Отвечаем мгновенно</span>
+        </div>
+
+        <div class="chat-messages" id="chatMessagesBox">
+          <div class="msg-bubble msg-bot">
+            Здравствуйте! Я бот-помощник <b>eSIM GO</b>. Напомню: в любой из 5 стран (Турция, Грузия, Беларусь, Таиланд, ОАЭ) сначала приобретается eSIM за <b>150 ₽</b>, а затем трафик по <b>15–20 ₽ за 1 ГБ</b>. Выберите вопрос ниже или напишите сообщение!
+          </div>
+        </div>
+
+        <div style="padding:12px 20px;background:#FFFFFF;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="tab-pill" style="padding:6px 14px;font-size:12px;" onclick="sendQuickChat('Как работают цены 150 ₽ + ГБ?')">Цены 150 ₽ + ГБ</button>
+          <button class="tab-pill" style="padding:6px 14px;font-size:12px;" onclick="sendQuickChat('Как установить eSIM?')">Установка</button>
+          <button class="tab-pill" style="padding:6px 14px;font-size:12px;" onclick="sendQuickChat('Как оформить возврат?')">Возврат</button>
+          <button class="tab-pill" style="padding:6px 14px;font-size:12px;" onclick="sendQuickChat('Нужен ли паспорт?')">Паспорт</button>
+          <button class="tab-pill" style="padding:6px 14px;font-size:12px;" onclick="sendQuickChat('Какой есть промокод?')">Промокод</button>
+          <button class="tab-pill" style="padding:6px 14px;font-size:12px;" onclick="sendQuickChat('Почта поддержки')">Почта whysim@mail.ru</button>
+        </div>
+
+        <div style="padding:16px 20px;background:#FFFFFF;border-top:1px solid var(--border);display:flex;gap:10px;">
+          <input type="text" class="input-control" id="chatUserInput" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')handleChatSend()" />
+          <button class="btn btn-red" onclick="handleChatSend()">Отправить</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ -->
+  <section class="page-section" id="sec-privacy">
+    <div class="container" style="max-width:920px;">
+      <button class="btn btn-light" style="margin-bottom:20px;" onclick="navigate('home')">← На главную</button>
+      <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:36px;box-shadow:var(--shadow-sm);">
+        <h1 style="font-size:28px;font-weight:900;margin-bottom:10px;">Политика конфиденциальности</h1>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Действующая редакция • Сервис туристических сим-карт eSIM GO</p>
+
+        <h3 style="margin:18px 0 8px;font-size:17px;font-weight:800;">1. Общие положения</h3>
+        <p style="font-size:14px;color:#374151;margin-bottom:12px;">Настоящая Политика конфиденциальности определяет порядок обработки и защиты информации о физических лицах, пользующихся услугами сервиса <b>eSIM GO</b> в соответствии с ФЗ РФ № 152-ФЗ «О персональных данных». По всем вопросам обработки данных вы можете обратиться по адресу: <b><a href="mailto:whysim@mail.ru" style="color:var(--red);">whysim@mail.ru</a></b>.</p>
+
+        <h3 style="margin:18px 0 8px;font-size:17px;font-weight:800;">2. Какие данные мы собираем</h3>
+        <p style="font-size:14px;color:#374151;margin-bottom:12px;">Для выпуска цифрового профиля eSIM (стоимостью 150 ₽) и начисления пакетов трафика (15–20 ₽/ГБ) мы запрашиваем только <b>адрес электронной почты (Email)</b> для доставки QR-кода активации и чека. Обработка банковских карт осуществляется на защищённой стороне платёжной системы <b>PLAT</b> по стандарту PCI DSS.</p>
+
+        <h3 style="margin:18px 0 8px;font-size:17px;font-weight:800;">3. Цели обработки и защита</h3>
+        <p style="font-size:14px;color:#374151;margin-bottom:12px;">Данные используются исключительно для генерации QR-кода eSIM, пополнения трафика и круглосуточной технической поддержки абонентов через <b>whysim@mail.ru</b>. Данные не передаются третьим лицам, за исключением случаев, предусмотренных законодательством.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ -->
+  <section class="page-section" id="sec-terms">
+    <div class="container" style="max-width:920px;">
+      <button class="btn btn-light" style="margin-bottom:20px;" onclick="navigate('home')">← На главную</button>
+      <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:36px;box-shadow:var(--shadow-sm);">
+        <h1 style="font-size:28px;font-weight:900;margin-bottom:10px;">Пользовательское соглашение (Публичная оферта)</h1>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Действующая редакция • Сервис туристических сим-карт eSIM GO</p>
+
+        <h3 style="margin:18px 0 8px;font-size:17px;font-weight:800;">1. Предмет соглашения</h3>
+        <p style="font-size:14px;color:#374151;margin-bottom:12px;">Сервис <b>eSIM GO</b> предоставляет Пользователю услуги по выпуску цифровых сим-карт стандарта eSIM и подключению пакетов мобильного интернет-трафика в 5 странах: <b>Турция, Грузия, Беларусь, Таиланд, ОАЭ</b>.</p>
+
+        <h3 style="margin:18px 0 8px;font-size:17px;font-weight:800;">2. Порядок тарификации и расчётов</h3>
+        <p style="font-size:14px;color:#374151;margin-bottom:12px;">Тарификация в каждой из 5 стран осуществляется в два этапа:
+          <br>1) Первоначальный выпуск профиля eSIM стоит фиксированно <b>150 ₽</b>.
+          <br>2) Интернет-трафик приобретается по цене от <b>15 до 20 ₽ за 1 ГБ</b> (Турция — 15 ₽/ГБ, Беларусь — 15 ₽/ГБ, Грузия — 16 ₽/ГБ, Таиланд — 18 ₽/ГБ, ОАЭ — 20 ₽/ГБ). Пользователь может докупать гигабайты к уже выпущенной eSIM в любое время через раздел «Мои eSIM».
+          <br>Приём платежей осуществляется через защищённый платёжный сервис <b>PLAT</b>.
+        </p>
+
+        <h3 style="margin:18px 0 8px;font-size:17px;font-weight:800;">3. Возврат средств и поддержка</h3>
+        <p style="font-size:14px;color:#374151;margin-bottom:12px;">По неактивированным профилям eSIM предусмотрен полный возврат денежных средств в течение 14 дней по обращению в службу поддержки на электронную почту: <b><a href="mailto:whysim@mail.ru" style="color:var(--red);">whysim@mail.ru</a></b>. Возврат производится через платёжный шлюз <b>PLAT</b> на карту оплаты.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ФУТЕР В СТИЛЕ МТС / ТЕЛЕ2 С PLAT, WHYSIM@MAIL.RU И ДОКУМЕНТАМИ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <a class="logo" style="color:#FFFFFF;" onclick="navigate('home')">eSIM<span>GO</span></a>
+
+        <div class="footer-links">
+          <a onclick="navigate('home')">О сервисе</a>
+          <a onclick="navigate('catalog')">Тарифы (150 ₽ + 15–20 ₽/ГБ)</a>
+          <a onclick="navigate('support')">Поддержка</a>
+          <a onclick="navigate('privacy')">Политика конфиденциальности</a>
+          <a onclick="navigate('terms')">Пользовательское соглашение</a>
+          <a href="mailto:whysim@mail.ru" style="color:var(--amber);font-weight:800;">✉️ whysim@mail.ru</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2025–2026 eSIM GO. Служба поддержки: <a href="mailto:whysim@mail.ru" style="color:#FFFFFF;font-weight:700;">whysim@mail.ru</a></div>
+
+        <div class="plat-badge">
+          <span class="plat-logo-word">PLAT</span>
+          <span style="color:#D1D5DB;font-weight:600;">Приём платежей и эквайринг обеспечены системой <b style="color:#FFFFFF;">PLAT</b></span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ВЕКТОРНЫЕ SVG-ФЛАГИ СТРАН (ОТОБРАЖАЮТСЯ КАК НАСТОЯЩИЕ ФЛАГИ НА WINDOWS, MAC И MOBILE БЕЗ БУКВ "TR", "GE" И Т.Д.)
+    const FLAG_SVGS = {
+      tr: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+            <rect width="60" height="40" fill="#E30A17"/>
+            <circle cx="24" cy="20" r="10" fill="#FFFFFF"/>
+            <circle cx="26.5" cy="20" r="8" fill="#E30A17"/>
+            <polygon points="33,20 40.5,22.4 35.8,16.1 35.8,23.9 40.5,17.6" fill="#FFFFFF"/>
+          </svg>`,
+      ge: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+            <rect width="60" height="40" fill="#FFFFFF"/>
+            <rect x="26" y="0" width="8" height="40" fill="#FF0000"/>
+            <rect x="0" y="16" width="60" height="8" fill="#FF0000"/>
+            <g fill="#FF0000">
+              <rect x="11.5" y="4.5" width="3" height="7"/><rect x="9.5" y="6.5" width="7" height="3"/>
+              <rect x="45.5" y="4.5" width="3" height="7"/><rect x="43.5" y="6.5" width="7" height="3"/>
+              <rect x="11.5" y="28.5" width="3" height="7"/><rect x="9.5" y="30.5" width="7" height="3"/>
+              <rect x="45.5" y="28.5" width="3" height="7"/><rect x="43.5" y="30.5" width="7" height="3"/>
+            </g>
+          </svg>`,
+      by: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+            <rect width="60" height="27" fill="#D22730"/>
+            <rect y="27" width="60" height="13" fill="#009739"/>
+            <rect width="7" height="40" fill="#FFFFFF"/>
+            <path d="M1.5,0 L5.5,4 L1.5,8 L5.5,12 L1.5,16 L5.5,20 L1.5,24 L5.5,28 L1.5,32 L5.5,36 L1.5,40" stroke="#D22730" stroke-width="2" fill="none"/>
+          </svg>`,
+      th: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+            <rect width="60" height="40" fill="#A51931"/>
+            <rect y="6.6" width="60" height="26.8" fill="#F4F5F8"/>
+            <rect y="13.3" width="60" height="13.4" fill="#2D2A4A"/>
+          </svg>`,
+      ae: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+            <rect x="15" y="0" width="45" height="13.33" fill="#00732F"/>
+            <rect x="15" y="13.33" width="45" height="13.33" fill="#FFFFFF"/>
+            <rect x="15" y="26.66" width="45" height="13.34" fill="#000000"/>
+            <rect x="0" y="0" width="16" height="40" fill="#FF0000"/>
+          </svg>`
+    };
+
+    function renderFlag(countryId, sizeClass = 'flag-lg') {
+      const svg = FLAG_SVGS[countryId] || FLAG_SVGS.tr;
+      return `<span class="flag-icon ${sizeClass}">${svg}</span>`;
+    }
+
+    // СПИСОК ИЗ 5 СТРАН (ВЫПУСК eSIM = 150 ₽, ТРАФИК = 15–20 ₽/ГБ)
+    const COUNTRIES = [
+      { id: 'tr', name: 'Турция', operator: 'Turkcell', net: '4G/5G', region: 'Ближний Восток', esimPrice: 150, gbPrice: 15, pop: 1 },
+      { id: 'ge', name: 'Грузия', operator: 'Magti', net: '4G', region: 'СНГ', esimPrice: 150, gbPrice: 16, pop: 2 },
+      { id: 'by', name: 'Беларусь', operator: 'A1 / МТС', net: '4G', region: 'СНГ', esimPrice: 150, gbPrice: 15, pop: 3 },
+      { id: 'th', name: 'Таиланд', operator: 'AIS', net: '4G/5G', region: 'Азия', esimPrice: 150, gbPrice: 18, pop: 4 },
+      { id: 'ae', name: 'ОАЭ', operator: 'e& / Etisalat', net: '5G', region: 'Ближний Восток', esimPrice: 150, gbPrice: 20, pop: 5 }
+    ];
+
+    // КАРТОЧКИ ПАКЕТОВ ГИГАБАЙТ ДЛЯ СТРАНИЦЫ СТРАНЫ
+    const TARIFF_PACKS = [
+      { gb: 0, days: '30 дней', label: '0 ГБ', sub: 'Только выпуск eSIM (150 ₽)' },
+      { gb: 3, days: '15 дней', label: '3 ГБ', sub: 'Оптимально на выходные' },
+      { gb: 5, days: '30 дней', label: '5 ГБ', sub: 'На неделю путешествия' },
+      { gb: 10, days: '30 дней', label: '10 ГБ', sub: 'Хит продаж для отпуска' },
+      { gb: 20, days: '30 дней', label: '20 ГБ', sub: 'Активное пользование' },
+      { gb: 50, days: '30 дней', label: '50 ГБ', sub: 'Максимум трафика и видео' }
+    ];
+
+    const DEVICES = [
+      { name: 'iPhone 16 / 16 Pro / 16 Pro Max', supported: true },
+      { name: 'iPhone 15 / 15 Plus / 15 Pro / 15 Pro Max', supported: true },
+      { name: 'iPhone 14 / 13 / 12 / 11 / XS / XR / SE 2020+', supported: true },
+      { name: 'Samsung Galaxy S26 / S25 / S24 / S23 / S22 / S21 / S20', supported: true },
+      { name: 'Samsung Galaxy Z Fold / Z Flip (все серии)', supported: true },
+      { name: 'Xiaomi 14 / 13 / 12T Pro / Redmi Note 13 Pro+', supported: true },
+      { name: 'Google Pixel 9 / 8 / 7 / 6 / 5 / 4', supported: true },
+      { name: 'Huawei P40 / P40 Pro / Mate 40 Pro', supported: true },
+      { name: 'iPhone для рынка Китая (CN Dual Physical SIM)', supported: false },
+      { name: 'Samsung Galaxy A14 / A24 (без модуля EID)', supported: false }
+    ];
+
+    const STORAGE_KEY = 'esim_go_telecom_v3';
+
+    let activeRegion = 'Все';
+    let currentCountry = COUNTRIES[0];
+    let selectedGb = 10;
+    let checkoutState = {
+      isTopup: false,
+      targetEsimId: null,
+      country: COUNTRIES[0],
+      esimFee: 150,
+      gbAmount: 10,
+      promoApplied: false
+    };
+
+    // LOCALSTORAGE УПРАВЛЕНИЕ
+    function getStoredEsims() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveStoredEsims(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      document.getElementById('headerEsimCount').textContent = list.length;
+    }
+
+    // TOAST-УВЕДОМЛЕНИЯ
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const item = document.createElement('div');
+      item.className = 'toast-item';
+      item.textContent = message;
+      container.appendChild(item);
+      setTimeout(() => {
+        item.style.opacity = '0';
+        item.style.transition = 'opacity 0.25s';
+        setTimeout(() => item.remove(), 260);
+      }, 3000);
+    }
+
+    function copyToClipboard(text, msg) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+      }
+      showToast(msg || 'Скопировано в буфер обмена');
+    }
+
+    // SPA НАВИГАЦИЯ
+    function navigate(sectionId) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('sec-' + sectionId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-item').forEach(nav => {
+        nav.classList.toggle('active', nav.dataset.target === sectionId);
+      });
+
+      if (sectionId === 'myesim') renderMyEsimPage();
+      if (sectionId === 'catalog') renderCatalogGrid();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      observeReveals();
+    }
+
+    // ВЫПАДАЮЩИЙ ПОИСК НА ГЛАВНОЙ С SVG ФЛАГАМИ
+    function renderSearchDropdown(query) {
+      const dd = document.getElementById('homeSearchDropdown');
+      const q = (query || '').trim().toLowerCase();
+      const matches = COUNTRIES.filter(c => c.name.toLowerCase().includes(q) || c.operator.toLowerCase().includes(q));
+
+      if (!matches.length) {
+        dd.innerHTML = `<div style="padding:14px 20px;color:var(--muted);font-size:14px;">Страна не найдена. Доступны: Турция, Грузия, Беларусь, Таиланд, ОАЭ.</div>`;
+      } else {
+        dd.innerHTML = matches.map(c => `
+          <div class="search-dd-item" onclick="openCountry('${c.id}')">
+            <div style="display:flex;align-items:center;gap:14px;">
+              ${renderFlag(c.id, 'flag-md')}
+              <div>
+                <div style="font-weight:800;font-size:15px;">${c.name}</div>
+                <div style="font-size:12px;color:var(--muted);">${c.operator} • ${c.net}</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:900;color:var(--red);font-size:15px;">eSIM 150 ₽</div>
+              <div style="font-size:12px;color:var(--muted);font-weight:700;">+ ${c.gbPrice} ₽ / 1 ГБ</div>
+            </div>
+          </div>
+        `).join('');
+      }
+      dd.classList.add('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      const wrap = document.querySelector('.search-box-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('homeSearchDropdown')?.classList.remove('open');
+      }
+    });
+
+    // РЕНДЕР КАРТОЧКИ СТРАНЫ (С НАСТОЯЩИМ SVG ФЛАГОМ)
+    function createCountryCardHTML(c, buttonText = 'Подробнее') {
+      return `
+        <div class="country-card" onclick="openCountry('${c.id}')">
+          <div>
+            <div class="cc-header">
+              ${renderFlag(c.id, 'flag-lg')}
+              <span class="cc-net-badge">${c.net}</span>
+            </div>
+            <div class="cc-title">${c.name}</div>
+            <div class="cc-operator">${c.operator} • трафик ${c.gbPrice} ₽/ГБ</div>
+          </div>
+          <div>
+            <div class="cc-divider"></div>
+            <div class="cc-footer">
+              <div>
+                <div class="cc-price-label">Выпуск eSIM + ГБ</div>
+                <div class="cc-price-val">150 ₽ <span style="font-size:12px;color:var(--muted);font-weight:700;">+${c.gbPrice} ₽/ГБ</span></div>
+              </div>
+              <button class="btn btn-red" style="padding:10px 14px;font-size:13px;">${buttonText}</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHomePopular() {
+      document.getElementById('homePopularGrid').innerHTML = COUNTRIES.map(c => createCountryCardHTML(c, 'Подробнее')).join('');
+      document.getElementById('heroMiniFlags').innerHTML = COUNTRIES.map(c =>
+        `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#D1D5DB;font-weight:600;">${renderFlag(c.id, 'flag-sm')} ${c.name}</span>`
+      ).join('');
+    }
+
+    // КАТАЛОГ СТРАН
+    function renderCatalogTabs() {
+      const regions = ['Все', 'Ближний Восток', 'СНГ', 'Азия'];
+      document.getElementById('catalogTabs').innerHTML = regions.map(r => `
+        <button class="tab-pill ${r === activeRegion ? 'active' : ''}" onclick="setRegionFilter('${r}')">${r}</button>
+      `).join('');
+    }
+
+    function setRegionFilter(region) {
+      activeRegion = region;
+      renderCatalogTabs();
+      renderCatalogGrid();
+    }
+
+    function renderCatalogGrid() {
+      const q = (document.getElementById('catalogSearchInput')?.value || '').trim().toLowerCase();
+      const sort = document.getElementById('catalogSortSelect')?.value || 'pop';
+
+      let filtered = COUNTRIES.filter(c => {
+        if (activeRegion !== 'Все' && c.region !== activeRegion) return false;
+        if (q && !c.name.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      if (sort === 'price') filtered.sort((a, b) => a.gbPrice - b.gbPrice);
+      else if (sort === 'alpha') filtered.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+      else filtered.sort((a, b) => a.pop - b.pop);
+
+      document.getElementById('catalogCountriesGrid').innerHTML = filtered.map(c => createCountryCardHTML(c, 'Выбрать')).join('');
+    }
+
+    // СТРАНИЦА СТРАНЫ
+    function openCountry(countryId) {
+      const c = COUNTRIES.find(x => x.id === countryId) || COUNTRIES[0];
+      currentCountry = c;
+      selectedGb = 10;
+      document.getElementById('homeSearchDropdown')?.classList.remove('open');
+
+      document.getElementById('crumbCountryName').textContent = c.name;
+      document.getElementById('countryRateText').textContent = `${c.gbPrice} ₽ за 1 ГБ`;
+
+      document.getElementById('countryHeaderBanner').innerHTML = `
+        <div style="display:flex;align-items:center;gap:20px;">
+          ${renderFlag(c.id, 'flag-xl')}
+          <div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+              <span class="cc-net-badge">${c.net}</span>
+              <span class="cc-net-badge">${c.operator}</span>
+              <span class="cc-net-badge" style="background:var(--green-soft);color:#15803D;">⚡ Мгновенно</span>
+            </div>
+            <h1 style="font-size:32px;font-weight:900;letter-spacing:-0.8px;">${c.name}</h1>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;">Базовый тариф страны</div>
+          <div style="font-size:22px;font-weight:900;">Выпуск eSIM <span style="color:var(--red);">150 ₽</span> + трафик <span style="color:var(--red);">${c.gbPrice} ₽/ГБ</span></div>
+        </div>
+      `;
+
+      document.getElementById('step1EsimCard').innerHTML = `
+        <div>
+          <span style="background:var(--red);color:#FFFFFF;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;text-transform:uppercase;">Шаг 1 • Обязательно</span>
+          <h3 style="font-size:20px;font-weight:900;margin-top:6px;">Покупка цифровой eSIM-карты (${c.name})</h3>
+          <p style="font-size:13px;color:var(--muted);margin-top:2px;">Сначала оформляется сама eSIM за 150 ₽. После покупки вы сможете пополнять её трафиком по ${c.gbPrice} ₽/ГБ в любой момент.</p>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:30px;font-weight:900;color:var(--red);">150 ₽</div>
+          <div style="font-size:12px;font-weight:700;color:var(--green);">✓ Включено</div>
+        </div>
+      `;
+
+      document.getElementById('customGbSlider').value = selectedGb;
+      renderCountryTariffs();
+      navigate('country');
+    }
+
+    function selectTariffPack(gb) {
+      selectedGb = gb;
+      document.getElementById('customGbSlider').value = gb;
+      renderCountryTariffs();
+    }
+
+    function selectCustomGb(val) {
+      selectedGb = parseInt(val, 10) || 0;
+      renderCountryTariffs();
+    }
+
+    function renderCountryTariffs() {
+      const c = currentCountry;
+      const trafficPrice = selectedGb * c.gbPrice;
+      const total = c.esimPrice + trafficPrice;
+
+      document.getElementById('countryTariffCards').innerHTML = TARIFF_PACKS.map(pack => {
+        const packCost = pack.gb * c.gbPrice;
+        const isSelected = pack.gb === selectedGb;
+        return `
+          <div class="tariff-card ${isSelected ? 'selected' : ''}" onclick="selectTariffPack(${pack.gb})">
+            <div class="tariff-radio"></div>
+            <div>
+              <div class="tariff-volume">${pack.label}</div>
+              <div class="tariff-days">${pack.days} • ${pack.sub}</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--muted);font-weight:700;">Стоимость трафика:</div>
+              <div class="tariff-price">+${packCost} ₽</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('customSliderLabel').textContent =
+        selectedGb === 0 ? '0 ГБ (+0 ₽ — только выпуск eSIM)' : `${selectedGb} ГБ (+${trafficPrice} ₽)`;
+
+      document.getElementById('stickyOrderRows').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:var(--muted);">Страна:</span>
+          <b style="display:inline-flex;align-items:center;gap:8px;">${renderFlag(c.id, 'flag-sm')} ${c.name}</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--muted);">Оператор:</span>
+          <b>${c.operator} (${c.net})</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--muted);">1. Выпуск eSIM:</span>
+          <b>150 ₽</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--muted);">2. Трафик (${c.gbPrice} ₽/ГБ):</span>
+          <b>${selectedGb} ГБ (+${trafficPrice} ₽)</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--muted);">Срок действия:</span>
+          <b>30 дней</b>
+        </div>
+      `;
+
+      document.getElementById('stickyTotalAmount').textContent = `${total.toLocaleString('ru-RU')} ₽`;
+    }
+
+    // ОФОРМЛЕНИЕ ЗАКАЗА (НОВАЯ eSIM ИЛИ ДОКУПКА ТРАФИКА)
+    function openCheckoutFromCountry() {
+      checkoutState = {
+        isTopup: false,
+        targetEsimId: null,
+        country: currentCountry,
+        esimFee: 150,
+        gbAmount: selectedGb,
+        promoApplied: false
+      };
+      document.getElementById('checkoutPromoInput').value = '';
+      renderCheckoutBox();
+      navigate('checkout');
+    }
+
+    function openTopupCheckout(esimId, gbToBuy) {
+      const list = getStoredEsims();
+      const target = list.find(e => e.id === esimId);
+      if (!target) return;
+      const country = COUNTRIES.find(c => c.id === target.countryId) || COUNTRIES[0];
+
+      checkoutState = {
+        isTopup: true,
+        targetEsimId: esimId,
+        country,
+        esimFee: 0,
+        gbAmount: gbToBuy,
+        promoApplied: false
+      };
+      closeModal();
+      document.getElementById('checkoutPromoInput').value = '';
+      renderCheckoutBox();
+      navigate('checkout');
+    }
+
+    function applyPromo() {
+      const code = (document.getElementById('checkoutPromoInput').value || '').trim().toUpperCase();
+      if (code === 'TRAVEL10') {
+        checkoutState.promoApplied = true;
+        showToast('Промокод TRAVEL10 применён (-10%)');
+      } else {
+        checkoutState.promoApplied = false;
+        showToast('Промокод не найден. Используйте TRAVEL10');
+      }
+      renderCheckoutBox();
+    }
+
+    function getCheckoutTotal() {
+      const trafficCost = checkoutState.gbAmount * checkoutState.country.gbPrice;
+      const subtotal = checkoutState.esimFee + trafficCost;
+      const discount = checkoutState.promoApplied ? Math.round(subtotal * 0.1) : 0;
+      return { trafficCost, subtotal, discount, finalTotal: subtotal - discount };
+    }
+
+    function renderCheckoutBox() {
+      const { trafficCost, discount, finalTotal } = getCheckoutTotal();
+      const c = checkoutState.country;
+
+      document.getElementById('checkoutOrderSummary').innerHTML = `
+        <div style="font-size:20px;font-weight:900;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:16px;">Итог заказа</div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:var(--muted);">Направление:</span>
+            <b style="display:inline-flex;align-items:center;gap:8px;">${renderFlag(c.id, 'flag-sm')} ${c.name} (${c.operator})</b>
+          </div>
+          ${checkoutState.isTopup ? `
+            <div style="display:flex;justify-content:space-between;">
+              <span style="color:var(--muted);">Операция:</span>
+              <b>Пополнение eSIM (${checkoutState.targetEsimId})</b>
+            </div>
+          ` : `
+            <div style="display:flex;justify-content:space-between;">
+              <span style="color:var(--muted);">Выпуск eSIM:</span>
+              <b>150 ₽</b>
+            </div>
+          `}
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--muted);">Пакет трафика (${c.gbPrice} ₽/ГБ):</span>
+            <b>${checkoutState.gbAmount} ГБ (${trafficCost} ₽)</b>
+          </div>
+          ${discount > 0 ? `
+            <div style="display:flex;justify-content:space-between;color:var(--green);font-weight:800;">
+              <span>Скидка TRAVEL10 (10%):</span>
+              <span>-${discount} ₽</span>
+            </div>
+          ` : ''}
+        </div>
+        <div style="padding-top:16px;border-top:2px dashed var(--border);">
+          <div style="font-size:12px;color:var(--muted);font-weight:800;">ИТОГО К ОПЛАТЕ (PLAT)</div>
+          <div style="font-size:38px;font-weight:900;color:var(--red);">${finalTotal.toLocaleString('ru-RU')} ₽</div>
+        </div>
+      `;
+
+      document.getElementById('checkoutPayBtn').textContent = `Оплатить ${finalTotal.toLocaleString('ru-RU')} ₽`;
+    }
+
+    function handleCardNumInput(el) {
+      let v = el.value.replace(/\D/g, '').substring(0, 16);
+      v = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+      el.value = v;
+      document.getElementById('cardVisualNum').textContent = v || '•••• •••• •••• ••••';
+    }
+
+    function handleCardExpInput(el) {
+      let v = el.value.replace(/\D/g, '').substring(0, 4);
+      if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+      el.value = v;
+      document.getElementById('cardVisualExp').textContent = v || 'MM/YY';
+    }
+
+    function processPayment(e) {
+      e.preventDefault();
+      const { finalTotal } = getCheckoutTotal();
+      const email = document.getElementById('checkoutEmail').value.trim() || 'traveler@mail.ru';
+      const list = getStoredEsims();
+      let savedOrder = null;
+
+      if (checkoutState.isTopup && checkoutState.targetEsimId) {
+        savedOrder = list.find(item => item.id === checkoutState.targetEsimId);
+        if (savedOrder) {
+          savedOrder.totalGb += checkoutState.gbAmount;
+          savedOrder.paidTotal += finalTotal;
+          savedOrder.status = 'active';
+        }
+      } else {
+        const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+        const codeSuffix = Math.random().toString(36).substring(2, 9).toUpperCase();
+        savedOrder = {
+          id: orderId,
+          countryId: checkoutState.country.id,
+          countryName: checkoutState.country.name,
+          operator: checkoutState.country.operator,
+          net: checkoutState.country.net,
+          gbPrice: checkoutState.country.gbPrice,
+          totalGb: checkoutState.gbAmount,
+          usedGb: 0,
+          paidTotal: finalTotal,
+          email,
+          status: checkoutState.gbAmount > 0 ? 'active' : 'pending',
+          activationCode: `LPA:1$rsp.esimgo.ru$${checkoutState.country.id.toUpperCase()}-${codeSuffix}`,
+          date: new Date().toLocaleDateString('ru-RU')
+        };
+        list.unshift(savedOrder);
+      }
+
+      saveStoredEsims(list);
+
+      document.getElementById('successSubtitle').innerHTML =
+        `${renderFlag(savedOrder.countryId, 'flag-md')} <span>eSIM для страны <b>${savedOrder.countryName}</b> (${savedOrder.totalGb} ГБ) готова</span>`;
+      document.getElementById('successOrderBadge').textContent =
+        `Номер заказа: ${savedOrder.id} • Шлюз PLAT`;
+      document.getElementById('successActivationCode').textContent = savedOrder.activationCode;
+
+      renderQrWithFallback(document.getElementById('successQrBox'), savedOrder.activationCode);
+      fireConfetti();
+      showToast('Оплата успешно проведена!');
+      navigate('success');
+    }
+
+    // ГЕНЕРАЦИЯ QR-КОДА С FALLBACK НА CANVAS
+    function renderQrWithFallback(container, text) {
+      container.innerHTML = '';
+      if (window.QRCode) {
+        new QRCode(container, { text, width: 170, height: 170 });
+      } else {
+        const canvas = document.createElement('canvas');
+        canvas.width = 170;
+        canvas.height = 170;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, 170, 170);
+        ctx.fillStyle = '#1A1A1A';
+        for (let r = 0; r < 15; r++) {
+          for (let c = 0; c < 15; c++) {
+            if ((r * c + text.charCodeAt((r + c) % text.length)) % 2 === 0) {
+              ctx.fillRect(10 + c * 10, 10 + r * 10, 8, 8);
+            }
+          }
+        }
+        container.appendChild(canvas);
+      }
+    }
+
+    // 7. РАЗДЕЛ «МОИ eSIM»
+    function renderMyEsimPage() {
+      const list = getStoredEsims();
+      const box = document.getElementById('myEsimListContainer');
+
+      if (!list.length) {
+        box.innerHTML = `
+          <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:60px 24px;text-align:center;box-shadow:var(--shadow-sm);">
+            <div style="width:72px;height:72px;border-radius:18px;background:#F3F4F6;color:#9CA3AF;font-size:36px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">📲</div>
+            <h3 style="font-size:22px;font-weight:900;margin-bottom:6px;">У вас пока нет eSIM</h3>
+            <p style="color:var(--muted);margin-bottom:22px;">Купите первый тариф за 2 минуты (выпуск eSIM 150 ₽ + трафик 15–20 ₽/ГБ)</p>
+            <button class="btn btn-red" onclick="navigate('catalog')">Выбрать страну</button>
+          </div>
+        `;
+        return;
+      }
+
+      box.innerHTML = list.map(item => {
+        const isAct = item.status === 'active';
+        const pct = item.totalGb > 0 ? Math.min(100, Math.round((item.usedGb / item.totalGb) * 100)) : 0;
+
+        return `
+          <div class="esim-item-card">
+            <div>
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+                ${renderFlag(item.countryId || 'tr', 'flag-lg')}
+                <div>
+                  <div style="font-size:20px;font-weight:900;">${item.countryName} — ${item.totalGb} ГБ / 30 дней</div>
+                  <div style="font-size:13px;color:var(--muted);">Оператор: ${item.operator} (${item.net}) • Заказ ${item.id}</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px;">
+                <span class="status-pill ${isAct ? 'active' : 'pending'}">
+                  ● ${isAct ? 'Активна' : 'Не активирован'}
+                </span>
+                <span style="font-size:12px;color:var(--muted);">Покупка: ${item.date} • ${item.email}</span>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px;">
+                <span>Использование трафика:</span>
+                <span style="color:var(--red);">${item.usedGb} / ${item.totalGb} ГБ</span>
+              </div>
+              <div style="height:9px;background:#E5E7EB;border-radius:99px;overflow:hidden;">
+                <div style="height:100%;width:${pct}%;background:var(--red);"></div>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-top:6px;">Докупка трафика: <b>${item.gbPrice} ₽ за 1 ГБ</b></div>
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+              <button class="btn btn-red" style="padding:10px 14px;font-size:13px;" onclick="showTopupModal('${item.id}')">+ Докупить ГБ (${item.gbPrice} ₽)</button>
+              <button class="btn btn-light" style="padding:10px 14px;font-size:13px;" onclick="showQrModal('${item.id}')">QR-код</button>
+              ${!isAct ? `<button class="btn btn-dark" style="padding:10px 14px;font-size:13px;" onclick="activateEsim('${item.id}')">Активировать</button>` : ''}
+              <button class="btn btn-light" style="padding:10px 14px;font-size:13px;" onclick="removeEsim('${item.id}')">Удалить</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showQrModal(id) {
+      const item = getStoredEsims().find(e => e.id === id);
+      if (!item) return;
+
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:6px;">
+            ${renderFlag(item.countryId || 'tr', 'flag-md')}
+            <h3 style="font-size:22px;font-weight:900;">${item.countryName} (${item.totalGb} ГБ)</h3>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Заказ ${item.id} • ${item.operator}</p>
+          <div id="modalQrRender" style="display:flex;justify-content:center;margin:16px 0;"></div>
+          <div style="background:#F3F4F6;padding:10px;border-radius:8px;font-family:monospace;font-size:12px;font-weight:800;margin-bottom:18px;">${item.activationCode}</div>
+          <button class="btn btn-red" style="width:100%;" onclick="closeModal()">Закрыть</button>
+        </div>
+      `;
+      document.getElementById('modalOverlay').classList.add('open');
+      renderQrWithFallback(document.getElementById('modalQrRender'), item.activationCode);
+    }
+
+    function showTopupModal(id) {
+      const item = getStoredEsims().find(e => e.id === id);
+      if (!item) return;
+
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          ${renderFlag(item.countryId || 'tr', 'flag-md')}
+          <h3 style="font-size:22px;font-weight:900;">Докупить трафик: ${item.countryName}</h3>
+        </div>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:18px;">
+          Карта eSIM (150 ₽) уже активна. Выберите объём трафика по цене <b>${item.gbPrice} ₽ за 1 ГБ</b>:
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+          ${[1, 3, 5, 10, 20, 50].map(gb => `
+            <button class="btn btn-light" style="flex-direction:column;padding:14px;" onclick="openTopupCheckout('${item.id}', ${gb})">
+              <span style="font-size:20px;font-weight:900;color:var(--text);">+${gb} ГБ</span>
+              <span style="font-size:13px;font-weight:800;color:var(--red);">${gb * item.gbPrice} ₽</span>
+            </button>
+          `).join('')}
+        </div>
+        <button class="btn btn-dark" style="width:100%;" onclick="closeModal()">Отмена</button>
+      `;
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    function activateEsim(id) {
+      const list = getStoredEsims();
+      const target = list.find(e => e.id === id);
+      if (target) {
+        target.status = 'active';
+        if (target.totalGb > 0 && target.usedGb === 0) target.usedGb = 0.3;
+        saveStoredEsims(list);
+        renderMyEsimPage();
+        showToast('eSIM успешно активирована!');
+      }
+    }
+
+    function removeEsim(id) {
+      const list = getStoredEsims().filter(e => e.id !== id);
+      saveStoredEsims(list);
+      renderMyEsimPage();
+      showToast('eSIM удалена из списка');
+    }
+
+    // 8. ГАЙДЫ И ПРОВЕРКА УСТРОЙСТВ
+    function switchGuide(tab) {
+      ['iphone', 'android', 'device'].forEach(t => {
+        document.getElementById('gPanel-' + t).style.display = (t === tab) ? 'block' : 'none';
+        document.getElementById('gTab-' + t).classList.toggle('active', t === tab);
+      });
+    }
+
+    function renderDeviceList(query) {
+      const q = (query || '').trim().toLowerCase();
+      const filtered = DEVICES.filter(d => d.name.toLowerCase().includes(q));
+      document.getElementById('deviceCompatibilityGrid').innerHTML = filtered.map(d => `
+        <div style="padding:12px 16px;border:1px solid var(--border);border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;">
+          <span>${d.name}</span>
+          <span>${d.supported ? '✅ Поддерживается' : '❌ Не поддерживается'}</span>
+        </div>
+      `).join('');
+    }
+
+    // 9. ЧАТ ПОДДЕРЖКИ С ТРЕМЯ ПУЛЬСИРУЮЩИЩИМИ ТОЧКАМИ
+    function sendQuickChat(text) {
+      document.getElementById('chatUserInput').value = text;
+      handleChatSend();
+    }
+
+    function handleChatSend() {
+      const inp = document.getElementById('chatUserInput');
+      const msg = inp.value.trim();
+      if (!msg) return;
+
+      const box = document.getElementById('chatMessagesBox');
+      box.innerHTML += `<div class="msg-bubble msg-user">${msg}</div>`;
+      inp.value = '';
+      box.scrollTop = box.scrollHeight;
+
+      const typingId = 'typing-' + Date.now();
+      box.innerHTML += `
+        <div class="msg-bubble msg-bot" id="${typingId}">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+      `;
+      box.scrollTop = box.scrollHeight;
+
+      setTimeout(() => {
+        document.getElementById(typingId)?.remove();
+        const low = msg.toLowerCase();
+        let reply = 'В сервисе <b>eSIM GO</b> представлены 5 стран: Турция, Грузия, Беларусь, Таиланд и ОАЭ. Выпуск eSIM — <b>150 ₽</b>, далее трафик — <b>15–20 ₽ за 1 ГБ</b>. Почта поддержки: <b>whysim@mail.ru</b>.';
+
+        if (low.includes('цен') || low.includes('150') || low.includes('тариф')) {
+          reply = 'Сначала вы покупаете саму eSIM за <b>150 ₽</b>, а затем подключаете нужное количество гигабайт: Турция и Беларусь — <b>15 ₽/ГБ</b>, Грузия — <b>16 ₽/ГБ</b>, Таиланд — <b>18 ₽/ГБ</b>, ОАЭ — <b>20 ₽/ГБ</b>.';
+        } else if (low.includes('установ')) {
+          reply = 'Откройте Настройки → Сотовая связь → Добавить eSIM и отсканируйте QR-код из раздела «Мои eSIM». Подробная инструкция есть во вкладке «Гайды».';
+        } else if (low.includes('возврат')) {
+          reply = 'Мы делаем 100% возврат средств через систему <b>PLAT</b> по неактивированным eSIM. Напишите номер заказа на <b>whysim@mail.ru</b>.';
+        } else if (low.includes('паспорт')) {
+          reply = 'Паспорт не требуется! Покупка и получение QR-кода происходят полностью онлайн за 2 минуты.';
+        } else if (low.includes('промокод')) {
+          reply = 'Используйте промокод <b>TRAVEL10</b> при оплате для получения скидки 10%!';
+        } else if (low.includes('почт') || low.includes('whysim')) {
+          reply = 'Наша круглосуточная почта поддержки: <a href="mailto:whysim@mail.ru" style="color:var(--red);font-weight:800;">whysim@mail.ru</a>.';
+        }
+
+        box.innerHTML += `<div class="msg-bubble msg-bot">${reply}</div>`;
+        box.scrollTop = box.scrollHeight;
+      }, 700);
+    }
+
+    // КОНФЕТТИ АНИМАЦИЯ
+    function fireConfetti() {
+      const colors = ['#E30611', '#FFC107', '#22C55E', '#1A1A1A'];
+      for (let i = 0; i < 42; i++) {
+        const piece = document.createElement('div');
+        piece.style.position = 'fixed';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.top = '-14px';
+        piece.style.width = '10px';
+        piece.style.height = '10px';
+        piece.style.background = colors[i % colors.length];
+        piece.style.borderRadius = '2px';
+        piece.style.zIndex = '9999';
+        piece.style.transition = 'top 1.6s ease-in, transform 1.6s linear, opacity 1.6s';
+        document.body.appendChild(piece);
+        setTimeout(() => {
+          piece.style.top = '105vh';
+          piece.style.transform = `rotate(${Math.random() * 720}deg)`;
+          piece.style.opacity = '0';
+        }, 20);
+        setTimeout(() => piece.remove(), 1700);
+      }
+    }
+
+    // INTERSECTION OBSERVER ДЛЯ ПЛАВНОГО ПОЯВЛЕНИЯ И СЧЁТЧИКОВ
+    function observeReveals() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    function animateStatsCounters() {
+      document.querySelectorAll('.counter').forEach(el => {
+        const target = parseInt(el.dataset.target, 10);
+        let current = 0;
+        const step = Math.max(1, Math.ceil(target / 35));
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.textContent = current.toLocaleString('ru-RU');
+        }, 25);
+      });
+    }
+
+    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('headerEsimCount').textContent = getStoredEsims().length;
+      renderHomePopular();
+      renderCatalogTabs();
+      renderCatalogGrid();
+      renderDeviceList('');
+      observeReveals();
+      animateStatsCounters();
+    });
+  </script>
+</body>
+</html>
